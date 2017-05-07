@@ -13,7 +13,7 @@
              (if (= 0 (rem x d)) (conj (conj acc (/ x d)) d) acc)))))
 
 (defn count-divisors [x]
-  (count (divisors x)))
+  (count (divisors-fast x)))
 
 (defn euler12 [triangle-num n d]
   (if (>= (count-divisors triangle-num) d)
