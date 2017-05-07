@@ -1,9 +1,6 @@
 (ns euler-clj.core
   (:gen-class))
 
-(defn divisors [x]
-  (filter #(= 0 (mod x %)) (range 1 (Math/sqrt (inc x)))))
-
 (defn divisors-fast [x]
   (loop [d 1
          acc #{}]
@@ -15,16 +12,20 @@
 (defn count-divisors [x]
   (count (divisors-fast x)))
 
-(defn euler12 [triangle-num n d]
-  (if (>= (count-divisors triangle-num) d)
-    (list triangle-num n)
-    (recur (+ (inc n) triangle-num) (inc n) d)))
-
 (defn next-triangle-number [[n t]]
   [(inc n) (+ (inc n) t)])
 
 (defn triangle-numbers []
   (map #(nth % 1) (iterate next-triangle-number [0 0])))
+
+(defn triangle-numbers-with-divisors-count []
+  (pmap (fn [triangle-num] (list (count-divisors triangle-num) triangle-num))  
+       (triangle-numbers)))
+
+(defn euler12 [d]
+  (nth 
+   (first (filter (fn [[dc tn]] (> dc d)) (triangle-numbers-with-divisors-count)))
+   1))
 
 (defn -main
   "I don't do a whole lot ... yet."
