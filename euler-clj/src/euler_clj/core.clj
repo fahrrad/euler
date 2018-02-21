@@ -2,15 +2,16 @@
   (:gen-class))
 
 (defn divisors-fast [x]
-  (loop [d 1
+  (loop [d 2
          acc #{}]
     (if (< x (* d d))
       acc
-      (recur (inc d)
+      (recur (+ 2 d)
              (if (= 0 (rem x d)) (conj (conj acc (/ x d)) d) acc)))))
 
 (defn count-divisors [x]
-  (count (divisors-fast x)))
+  (let [dc (count (divisors-fast x))]
+    (+ 2 (if (= 0 (rem x 2)) (* 2 dc) dc))))
 
 (defn next-triangle-number [[n t]]
   [(inc n) (+ (inc n) t)])
@@ -31,4 +32,6 @@
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!"))
+
+
 
