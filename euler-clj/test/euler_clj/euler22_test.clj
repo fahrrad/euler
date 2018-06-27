@@ -12,27 +12,32 @@
   (t/testing "scoring the example from euler"
     (t/is (= 53 (sut/score-name "colin")))))
 
-(t/deftest read-next-name-test
+(t/deftest scan-next-name-test
   (t/testing "Reading reads till the next comma"
-    (let [sr (java.io.StringReader. "\"MARIE\",\"PIERE\"")]
-      (t/is (= "marie" (sut/read-next-name sr)))))
+    (let [sr (java.io.StringReader. "\"MARIE\",\"PIERE\"")
+          scanner (sut/comma-delimited-scanner sr)]
+      (t/is (= "marie" (sut/scan-next-name scanner)))))
   (t/testing "Reading stops at the end of the file"
-    (let [sr (java.io.StringReader. "\"PIERE\"")]
-      (t/is (= "piere" (sut/read-next-name sr))))))
+    (let [sr (java.io.StringReader. "\"PIERE\"")
+          scanner (sut/comma-delimited-scanner sr)]
+      (t/is (= "piere" (sut/scan-next-name scanner)))
+      (t/is (nil? (sut/scan-next-name scanner))))))
 
 (t/deftest names-usorted-test
   (t/testing "returns all the names"
     (let [s "piere,marie,louise,anna"
           sr (java.io.StringReader. s)
-          names (sut/names-unsorted sr)]
+          scanner (sut/comma-delimited-scanner sr)
+          names (sut/names-unsorted scanner)]
       (t/is (= 4 (count names))))))
 
 (t/deftest names-test
   (t/testing "returns all the names, sorted"
     (let [s "piere,marie,louise,anna"
           names-sorted ["anna" "louise" "marie" "piere"]
-          sr (java.io.StringReader. s)
-          names (sut/names sr)]
+          reader (java.io.StringReader. s)
+          scanner (sut/comma-delimited-scanner reader)
+          names (sut/names scanner)]
       (t/is (= names-sorted names)))))
 
 (t/deftest score-names-list-test

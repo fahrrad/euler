@@ -9,33 +9,43 @@
 (defn score-name [name]
   (apply + (map score-char name)))
 
-(defn read-next-name [rdr]
-  (->> (repeatedly #(.read rdr))
-       (take-while #(and (>= % 0) (not (= % (int \,)))))
-       (map char)
-       (remove #{\" \newline \return})
-       (apply str)
-       (s/lower-case)))
+(defn remove-quotes [s]
+  (apply str  (remove #{\" \newline \return} s)))
 
-(defn names-unsorted [rdr]
+(defn scan-next-name
+  "reads the next name from the scanner. removes quotes and lowercases. If scanner is exhausted, return nil"
+  [scanner]
+  (when (.hasNext scanner)
+    (-> (.next scanner)
+        remove-quotes
+        s/lower-case)))
+
+(defn names-unsorted [scanner]
   (take-while
    (complement s/blank?)
-   (repeatedly #(read-next-name rdr))))
+   (repeatedly #(scan-next-name scanner))))
 
-(defn names [rdr]
-  (sort (names-unsorted rdr)))
+(defn names [scanner]
+  (sort (names-unsorted scanner)))
 
 (defn score-names [names]
   (map score-name names))
 
 (defn score-names-list [names]
-  (apply + (map *
-                (drop 1 (range)) ;; line number
-                (score-names names))))
+  (apply +
+         (map *
+              (drop 1 (range)) ;; line number
+              (score-names names))))
+
+(defn comma-delimited-scanner [r]
+  (-> r
+      (java.util.Scanner.)
+      (.useDelimiter ",")))
 
 (defn score-file [filename]
   (let [f (io/resource filename)]
-    (with-open [rdr (io/reader f)]
-      (score-names-list (names rdr)))))
+    (with-open [reader (io/reader f)
+                scanner (comma-delimited-scanner reader)]
+      (score-names-list (names scanner)))))
 
 
